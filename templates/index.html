@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+        <title>{% block title %}{% endblock %} - Item Catalog App</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/static/styles/style.css">
+        <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        {% endblock %} 
+    </head>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{{ url_for('latestItems') }}">Catalog App</a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-navbar">
+                    {% if current_user.is_authenticated() %}
+                    <form class="navbar-form navbar-right" method="POST" action="{{ url_for('logout') }}">
+                        <a class="btn btn-primary" href="/logout">Logout
+                        <span class="glyphicon glyphicon-log-out" aria-hidden="true"/>
+                        </a>
+                    </form>
+                    <p class="navbar-text navbar-right"style="color: white;">{{ current_user.name }}</p>
+                    {% else %}
+                    <form class="navbar-form navbar-right" method="POST" action="{{ url_for('login') }}">
+                        <button type="submit" class="btn btn-block btn-social btn-google"><span class="fa fa-google-plus"></span>Sign in with Google</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar" id ="menu">
+                {% if current_user.is_authenticated() %}
+                <ul class="nav nav-sidebar" style="margin-bottom: 5px;">
+                    <li>
+                        <a href="{{ url_for('createItem') }}">Add Item</a>
+                    </li>
+                </ul>
+                {% endif %}
+                <ul class="nav nav-sidebar" style="margin-bottom: 5px;">
+                    <li>
+                        <a href="{{ url_for('latestItems') }}">Latest Items</a>
+                    </li>
+                </ul>
+                <ul class="nav nav-sidebar">
+                    <li>
+                        <h4>Categories</h4>
+                    </li>
+                    {% for category in categories %}
+                    <li>
+                        <a href="{{ url_for('listItems', category_id=category.id) }}">{{ category.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <h1 class="page-header">{% block header %}{% endblock %}</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </div>
+            </row>
+        </div>
+        <script>
+            $( document ).ready(function() {
+                $('#menu').find('a[href="{{ request.path|urlencode }}"]').parent().addClass('active');
+            });
+        </script>
+    </body>
+</html>
